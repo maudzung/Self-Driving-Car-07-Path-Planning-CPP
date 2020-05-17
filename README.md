@@ -16,7 +16,7 @@ over 10 m/s^2 and jerk that is greater than 10 m/s^3.
  there is a list of waypoints that go all the way around the track. The track contains a total of 181 waypoints, 
  with the last waypoint mapping back around to the first. The waypoints are in the middle of the double-yellow dividing line in the center of the highway.
 
-Each waypoint in the list contains  [x,y,s,dx,dy] values. x and y are the waypoint's map coordinate position, the s value 
+Each waypoint in the list contains [x,y,s,dx,dy] values. x and y are the waypoint's map coordinate position, the s value 
 is the distance along the road to get to that waypoint in meters, the dx and dy values define the unit normal vector pointing outward of the highway loop.
 The d vector has a magnitude of 1 and points perpendicular to the road in the direction of the right-hand side of the road. 
 The d vector can be used to calculate lane positions.
@@ -30,36 +30,36 @@ Here is the data provided from the Simulator to the C++ Program
 
 ### Main car's localization Data (No Noise)
 
-["x"] The car's x position in map coordinates
+- **x**: The car's x position in map coordinates
 
-["y"] The car's y position in map coordinates
+- **y**: The car's y position in map coordinates
 
-["s"] The car's s position in frenet coordinates
+- **s**: The car's s position in frenet coordinates
 
-["d"] The car's d position in frenet coordinates
+- **d**: The car's d position in frenet coordinates
 
-["yaw"] The car's yaw angle in the map
+- **yaw**: The car's yaw angle in the map
 
-["speed"] The car's speed in MPH
+- **speed**: The car's speed in MPH
 
 ### Previous path data given to the Planner
 
 //Note: Return the previous list but with processed points removed, can be a nice tool to show how far along
 the path has processed since last time. 
 
-["previous_path_x"] The previous list of x points previously given to the simulator
+- **previous_path_x**: The previous list of x points previously given to the simulator
 
-["previous_path_y"] The previous list of y points previously given to the simulator
+- **previous_path_y**: The previous list of y points previously given to the simulator
 
 ### Previous path's end s and d values 
 
-["end_path_s"] The previous list's last point's frenet s value
+- **end_path_s**: The previous list's last point's frenet s value
 
-["end_path_d"] The previous list's last point's frenet d value
+- **end_path_d**: The previous list's last point's frenet d value
 
 ### Sensor Fusion Data, a list of all other car's attributes on the same side of the road. (No Noise)
 
-["sensor_fusion"] A 2d vector of cars and then that car's [car's unique ID, car's x position in map coordinates, 
+- **sensor_fusion**: A 2d vector of cars and then that car's [car's unique ID, car's x position in map coordinates, 
 car's y position in map coordinates, car's x velocity in m/s, car's y velocity in m/s, car's s position in frenet coordinates, 
 car's d position in frenet coordinates. 
 
@@ -102,13 +102,12 @@ ${ROOT}
 ├──README.md
 ├──run.sh
 ├──data/
-    ├──map_data.txt
+    ├──highway_map.csv
 ├──src/
-    ├──helper_functions.h
+    ├──helpers.h
+    ├──json.hpp
     ├──main.cpp
-    ├──map.h
-    ├──particle_filter.cpp
-    ├──particle_filter.h
+    ├──spline.h
 ```
 
 ## Dependencies
