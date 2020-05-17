@@ -13,11 +13,18 @@ over 10 m/s^2 and jerk that is greater than 10 m/s^3.
 ## Input and Output data
 
 ### Input: The map of the highway is in data/highway_map.txt
+ there is a list of waypoints that go all the way around the track. The track contains a total of 181 waypoints, 
+ with the last waypoint mapping back around to the first. The waypoints are in the middle of the double-yellow dividing line in the center of the highway.
+
 Each waypoint in the list contains  [x,y,s,dx,dy] values. x and y are the waypoint's map coordinate position, the s value 
 is the distance along the road to get to that waypoint in meters, the dx and dy values define the unit normal vector pointing outward of the highway loop.
+The d vector has a magnitude of 1 and points perpendicular to the road in the direction of the right-hand side of the road. 
+The d vector can be used to calculate lane positions.
 
-The highway's waypoints loop around so the frenet's value, distance along the road, goes from 0 to 6945.554.
+The highway's waypoints loop around so the frenet s value, distance along the road, goes from 0 to 6945.554.
 
+The highway has 6 lanes total - 3 heading in each direction. Each lane is 4 m wide and the car should only ever be in 
+one of the 3 lanes on the right-hand side. The car should always be inside a lane unless doing a lane change.
 
 Here is the data provided from the Simulator to the C++ Program
 
