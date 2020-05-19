@@ -17,12 +17,37 @@ Given:
 - The sparse map list of waypoints around the highway. 
 
 ## Demostration
-![demo](./images/demo.gif)
+[demo](./images/demo.gif)
 
 ## Implementation details
+Behaviour Control Overview
+![ov](./images/behavior_control.png)
+
+### Prediction
+The code of this part is from line ```#120``` to line ```#158```. <br>
+From the sensor_fusion data, we can predict positions of other cars.
+Then if the distance between our car and an another car is less than 30 meters (in front or behind), our car is considered 
+in a dangerous area. 
+
 ### Behaviour Planning
+The code of this part is from line ```#164``` to line ```#189```. <br>
+Behaviour planning overview:
+![overview](./images/behaviour_planning_overview.png)
+
+In this part, the car need to decide:
+- Speed up or slow down
+- Should it pass a slower car in front? (Change lane)
+
+I considered only 3 states in the FSM:
+- Keep lane
+- Change lane right
+- Change lane left
+
+![fsm](./images/FSM.png)
 
 ### Trajectory Generation
+The code of this part is from line ```#195``` to line ```#310```. <br>
+
 
 ### Future work
 - [ ] Design cost function for behaviour planning
