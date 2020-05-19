@@ -20,8 +20,12 @@ Given:
 ![demo](./images/demo.gif)
 
 ## Implementation details
-### 
-###
+### Behaviour Planning
+
+### Trajectory Generation
+
+### Future work
+- [ ] Design cost function for behaviour planning
 
 ## Input and Output data
 
