@@ -101,9 +101,10 @@ int main() {
           // Get number of points that were not executed by the previous trajectory
           int prev_traj_size = previous_path_x.size();
 
-          // If there are any unprocessed points, set the "s" of the state to the last of them
-          if(prev_traj_size > 0)
+          // If there are any unprocessed points, set car_s to the end s value
+          if(prev_traj_size > 0) {
             car_s = end_path_s;
+          }
 
           /*
           Get information of other cars on the same side of the road from the simulator
@@ -117,20 +118,20 @@ int main() {
           bool too_close_left = false;
           bool too_close_right = false;
 
-
           // Loop over all detected cars (in sensor_susion)
           // sensor_fusion data format: [id, x, y, vx, vy, s, d]
           for (int i=0; i < sensor_fusion.size(); i++) {
             double detected_d = sensor_fusion[i][6];
             int detected_lane = -1;
-            if ((0 < detected_d) and (detected_d < 4)) {
+            if ((0 < detected_d) && (detected_d < 4)) {
               detected_lane = 0;
-            } else if ((4 < detected_d) and (detected_d < 8)) {
+            } else if ((4 < detected_d) && (detected_d < 8)) {
               detected_lane = 1;
-            } else if ((8 < detected_d) and (detected_d < 12)) {
+            } else if ((8 < detected_d) && (detected_d < 12)) {
               detected_lane = 2;
             } else {
-              continue; // Ignore the detected car if it's not on the same side of the road with our car
+              // Ignore the detected car if it's not on the same side of the road with our car
+              continue;
             }
 
             double detected_vx = sensor_fusion[i][3];
@@ -138,53 +139,44 @@ int main() {
             double detected_v = sqrt(detected_vx * detected_vx + detected_vy * detected_vy);
 
             double detected_s = sensor_fusion[i][5];
-
+            // Predict the position of the detected car
             detected_s += (double)prev_traj_size * detected_v * 0.02;
 
             // Set true if there is a car within 30m ahead in current lane
             // or in a range of +- 30m in left/right lane
 
             if (detected_lane == lane) {
-              too_close_ahead |= (detected_s > car_s) and (detected_s < car_s + 30.0);
+              too_close_ahead |= (detected_s > car_s) && (detected_s < car_s + 30.0);
             } else if (detected_lane == (lane - 1)) {
-              too_close_left |= (detected_s > (car_s - 30.0)) and (detected_s < (car_s + 30.0));
+              too_close_left |= (detected_s > (car_s - 30.0)) && (detected_s < (car_s + 30.0));
             } else if (detected_lane == (lane + 1)) {
-              too_close_right |= (detected_s > (car_s - 30.0)) and (detected_s < (car_s + 30.0));
+              too_close_right |= (detected_s > (car_s - 30.0)) && (detected_s < (car_s + 30.0));
             }
           }
-
-          json msgJson;
-
-          vector<double> next_x_vals;
-          vector<double> next_y_vals;
-
-          /**
-           *  define a path made up of (x,y) points that the car will visit
-           *   sequentially every .02 seconds
-           */
-
+          double delta_vel = 0.;
           if (too_close_ahead) {
             // Check to change lane
-            if ((!too_close_left) and lane > 0) {
+            if ((!too_close_left) && (lane > 0)) {
               // Our car can safely change to the left lane
               lane--;
-            } else if ((!too_close_right) and lane < 2) {
+            } else if ((!too_close_right) && (lane < 2)) {
               // Our car can safely change to the right lane
               lane++;
             } else {
               // Our car can't change lane because of dangerous
               // Let our car slow down
-              ref_vel -= k_max_acc;
+              delta_vel -= k_max_acc;
             }
           } else {
             // There is no car ahead in the dangerous range (+30 meters)
-
-            // May change to the central lane
-            if (ref_vel < k_max_speed) {
-              ref_vel += k_max_acc;
-              if (ref_vel > k_max_speed) {
-                ref_vel = k_max_speed;
+            // Check the center lane and change to the central lane if possible
+            if (lane != 1) {
+              if (((lane == 0) && (!too_close_right)) || ((lane == 2) && (!too_close_left))) {
+                lane = 1;
               }
+            }
+            if (ref_vel < k_max_speed) {
+              delta_vel += k_max_acc;
             }
           }
 
@@ -230,9 +222,8 @@ int main() {
             pts_y.push_back(ref_y);
           }
 
-          // A variable for d values of the center of our car's next lane (if dont change lane, keep on the current lane)
           double next_lane_d = 4*lane + 2;
-          // Add 3 far points to the trajectories points (+30m, +60m, +90m in the s axis in Frenet coordinate)
+          // Add 3 target points of the trajectory: (+30m, +60m, +90m in the s axis in Frenet coordinate)
           // convert the three points from Frenet to cartesian coordinates
           std::vector<double> next_wp1 = getXY(car_s + 30, next_lane_d, map_waypoints_s, map_waypoints_x, map_waypoints_y);
           std::vector<double> next_wp2 = getXY(car_s + 60, next_lane_d, map_waypoints_s, map_waypoints_x, map_waypoints_y);
@@ -249,7 +240,7 @@ int main() {
 
           // Transform the waypoints from global coordinates to our car coordinates
           // Shifting the car orientation to 0 degrees
-          for (int i=0; i<pts_x.size(); i++) {
+          for (int i = 0; i < pts_x.size(); i++) {
             // Computed shifted coordinates
             double shifted_x = pts_x[i] - ref_x;
             double shifted_y = pts_y[i] - ref_y;
@@ -264,27 +255,31 @@ int main() {
           // Compute spline to fit the trajectories points
           s.set_points(pts_x, pts_y);
 
+          vector<double> next_x_vals;
+          vector<double> next_y_vals;
+          // Add non-processed points to next trajectory
           for (int i = 0; i<prev_traj_size; i++)
           {
             next_x_vals.push_back(previous_path_x[i]);
             next_y_vals.push_back(previous_path_y[i]);
           }
 
-
           double target_x = 30.0;
           double target_y = s(target_x); 
           double target_dist = sqrt(target_x * target_x + target_y * target_y);
 
-          // // Avoid deviding by zero
-          // if (ref_vel < k_max_acc) {
-          //   ref_vel = k_max_acc;
-          // }
-          double N = target_dist / (0.02 * ref_vel / 2.24); //2.24 to convert from MPH to m/s
 
 
           double x_prev = 0; // x offset to generate points
           for (int i=1; i < 50-prev_traj_size; i++) {
-
+            ref_vel += delta_vel;
+            if (ref_vel > k_max_speed) {
+                ref_vel = k_max_speed;
+            }
+            else if (ref_vel < k_max_acc) {
+                ref_vel = k_max_acc;
+            }
+            double N = target_dist / (0.02 * ref_vel / 2.24);
             // Get point using spline
             double x_point = x_prev + target_x / N;
             double y_point = s(x_point);
@@ -292,7 +287,7 @@ int main() {
             // Update x_prev (offset)
             x_prev = x_point;
 
-            // temporary variables in order not to use modified values
+            // temporary variables in order not to use modified x_point, y_point values
             double x_point_temp = x_point;
             double y_point_temp = y_point;
 
@@ -306,7 +301,7 @@ int main() {
             next_y_vals.push_back(y_point);
           }
 
-
+          json msgJson;
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
 
