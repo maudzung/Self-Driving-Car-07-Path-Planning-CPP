@@ -113,6 +113,9 @@ int main() {
           //   of the road.
           auto sensor_fusion = j[1]["sensor_fusion"];
 
+          /*
+          PREDICTION
+          */
           // Set flags that indicate other cars on left/right/current lanes too close
           bool too_close_ahead = false;
           bool too_close_left = false;
@@ -153,6 +156,11 @@ int main() {
               too_close_right |= (detected_s > (car_s - 30.0)) && (detected_s < (car_s + 30.0));
             }
           }
+
+          /*
+          BEHAVIOR PLANNING
+          */
+
           double delta_vel = 0.;
           if (too_close_ahead) {
             // Check to change lane
@@ -181,7 +189,7 @@ int main() {
           }
 
           /*
-          Trajectory generation, using spline libs
+          TRAJECTORY GENERATION (using spline libs: https://kluge.in-chemnitz.de/opensource/spline/)
           */
           // The trajectories points
           std::vector<double> pts_x;
