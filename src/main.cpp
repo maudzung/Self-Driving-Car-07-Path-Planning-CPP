@@ -27,7 +27,7 @@ int main() {
   // Waypoint map to read from
   string map_file_ = "../data/highway_map.csv";
   // The max s value before wrapping around the track back to 0
-  double max_s = 6945.554;
+  const double max_s = 6945.554;
 
   std::ifstream in_map_(map_file_.c_str(), std::ifstream::in);
 
@@ -142,19 +142,16 @@ int main() {
             detected_s += (double)prev_traj_size * detected_v * 0.02;
 
             // Set true if there is a car within 30m ahead in current lane
-            // or +- 30m in left/right lane
+            // or in a range of +- 30m in left/right lane
 
             if (detected_lane == lane) {
               too_close_ahead |= (detected_s > car_s) and (detected_s < car_s + 30.0);
             } else if (detected_lane == (lane - 1)) {
-              too_close_left |= (detected_s > (car_s - 30.0)) and (detected_s < (car_s + 30));
+              too_close_left |= (detected_s > (car_s - 30.0)) and (detected_s < (car_s + 30.0));
             } else if (detected_lane == (lane + 1)) {
               too_close_right |= (detected_s > (car_s - 30.0)) and (detected_s < (car_s + 30.0));
             }
-
           }
-
-
 
           json msgJson;
 
@@ -179,18 +176,16 @@ int main() {
               // Let our car slow down
               ref_vel -= k_max_acc;
             }
-
           } else {
             // There is no car ahead in the dangerous range (+30 meters)
 
             // May change to the central lane
             if (ref_vel < k_max_speed) {
               ref_vel += k_max_acc;
+              if (ref_vel > k_max_speed) {
+                ref_vel = k_max_speed;
+              }
             }
-
-            if (ref_vel > k_max_speed)
-              ref_vel = k_max_speed;
-
           }
 
           /*
@@ -280,22 +275,22 @@ int main() {
           double target_y = s(target_x); 
           double target_dist = sqrt(target_x * target_x + target_y * target_y);
 
-          // Avoid deviding by zero
-          if (ref_vel < k_max_acc) {
-            ref_vel = k_max_acc;
-          }
+          // // Avoid deviding by zero
+          // if (ref_vel < k_max_acc) {
+          //   ref_vel = k_max_acc;
+          // }
           double N = target_dist / (0.02 * ref_vel / 2.24); //2.24 to convert from MPH to m/s
 
 
-          double x_add_on = 0; // X offset to generate points
+          double x_prev = 0; // x offset to generate points
           for (int i=1; i < 50-prev_traj_size; i++) {
 
             // Get point using spline
-            double x_point = x_add_on + target_x / N;
+            double x_point = x_prev + target_x / N;
             double y_point = s(x_point);
 
-            // Update x_add_on (offset)
-            x_add_on = x_point;
+            // Update x_prev (offset)
+            x_prev = x_point;
 
             // temporary variables in order not to use modified values
             double x_point_temp = x_point;
