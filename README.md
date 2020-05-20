@@ -17,7 +17,9 @@ Given:
 - The sparse map list of waypoints around the highway. 
 
 ## Demostration
-[demo](./images/demo.gif)
+![demo](./images/demo.gif)
+The full demonstration is at [https://youtu.be/qpuEvE4Hhxw](https://youtu.be/qpuEvE4Hhxw). <br>
+It's shown that my car could drive without accidents on the highway.
 
 ## Implementation details
 Behaviour Control Overview
@@ -38,7 +40,7 @@ In this part, the car need to decide:
 - Speed up or slow down
 - Should it pass a slower car in front? (Change lane)
 
-I considered only 3 states in the FSM:
+I considered only 3 states of the car during driving:
 - Keep lane
 - Change lane right
 - Change lane left
@@ -47,10 +49,16 @@ I considered only 3 states in the FSM:
 
 ### Trajectory Generation
 The code of this part is from line ```#195``` to line ```#310```. <br>
-
+The generated trajectory consists of 50 points in the global cartersian coordinates (x,y).
+- I took 2 points that were not processed in the previous trajectory.
+- I added 3 more points that are in the Frenet coordinate:
+    - _**s**_: 30m, 60m, and 90m from the current position of our car
+    - _**d**_: the center of the target lane.
+- I used the [spline library](kluge.in-chemnitz.de/opensource/spline/) to generate the new trajectory.
 
 ### Future work
-- [ ] Design cost function for behaviour planning
+- [ ] Design cost function for the behaviour planner.
+- [ ] Consider ```prepare change lane left/right``` states.
 
 ## Input and Output data
 
