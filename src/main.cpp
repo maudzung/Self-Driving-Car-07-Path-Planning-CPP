@@ -58,11 +58,11 @@ int main() {
   // Have a reference velocity to target (< speed limit)
   // Initiallize with 0.0
   double ref_vel = 0.0; //MPH
-  const double k_max_speed = 49.5;
-  const double k_max_acc = 0.224;  // ~ 5m/s^2
+  const double kMaxSpeed = 49.5;
+  const double kMaxAcc = 0.224;  // ~ 5m/s^2
 
   h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,
-   &map_waypoints_dx,&map_waypoints_dy,&lane,&ref_vel,&k_max_speed,&k_max_acc]
+   &map_waypoints_dx,&map_waypoints_dy,&lane,&ref_vel,&kMaxSpeed,&kMaxAcc]
   (uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
    uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
@@ -173,7 +173,7 @@ int main() {
             } else {
               // Our car can't change lane because of dangerous
               // Let our car slow down
-              delta_vel -= k_max_acc;
+              delta_vel -= kMaxAcc;
             }
           } else {
             // There is no car ahead in the dangerous range (+30 meters)
@@ -183,8 +183,8 @@ int main() {
                 lane = 1;
               }
             }
-            if (ref_vel < k_max_speed) {
-              delta_vel += k_max_acc;
+            if (ref_vel < kMaxSpeed) {
+              delta_vel += kMaxAcc;
             }
           }
 
@@ -281,11 +281,11 @@ int main() {
           double x_prev = 0; // x offset to generate points
           for (int i=1; i < 50-prev_traj_size; i++) {
             ref_vel += delta_vel;
-            if (ref_vel > k_max_speed) {
-                ref_vel = k_max_speed;
+            if (ref_vel > kMaxSpeed) {
+              ref_vel = kMaxSpeed;
             }
-            else if (ref_vel < k_max_acc) {
-                ref_vel = k_max_acc;
+            else if (ref_vel < kMaxAcc) {
+              ref_vel = kMaxAcc;
             }
             double N = target_dist / (0.02 * ref_vel / 2.24);
             // Get point using spline
