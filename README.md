@@ -17,7 +17,9 @@ Given:
 - The sparse map list of waypoints around the highway. 
 
 ## Demostration
+
 ![demo](./images/demo.gif)
+
 The full demonstration is at [https://youtu.be/qpuEvE4Hhxw](https://youtu.be/qpuEvE4Hhxw). <br>
 It's shown that my car could drive without accidents on the highway.
 
@@ -54,7 +56,7 @@ The generated trajectory consists of 50 points in the global cartersian coordina
 - I added 3 more points that are in the Frenet coordinate:
     - _**s**_: 30m, 60m, and 90m from the current position of our car
     - _**d**_: the center of the target lane.
-- I used the [spline library](kluge.in-chemnitz.de/opensource/spline/) to generate the new trajectory.
+- I used the [spline library](https://kluge.in-chemnitz.de/opensource/spline/) to generate the new trajectory.
 
 ### Future work
 - [ ] Design cost function for the behaviour planner.
